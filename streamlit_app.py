@@ -104,3 +104,5 @@ conn.commit()
 conn.close()
 
 db = local_file  # We'll be using this local file as our DB in this tutorial
+stringio = StringIO(db.getvalue().decode("utf-8"))
+st.text_area("File Content", stringio.read()
