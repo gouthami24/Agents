@@ -90,6 +90,11 @@ for column in datetime_columns:
 
 for table_name, df in tdf.items():
     df.to_sql(table_name, conn, if_exists="replace", index=False)
+
+# Display the dataframe in Streamlit
+st.write('Database Contents:')
+st.dataframe(df)
+
 del df
 del tdf
 conn.commit()
