@@ -66,7 +66,7 @@ tdf = {}
 for t in tables:
     tdf[t] = pd.read_sql(f"SELECT * from {t}", conn)
 
-st.write('tdf :',tdf)
+#st.write('tdf :',tdf)
 #st.dataframe(df)
 
 example_time = pd.to_datetime(
