@@ -4,18 +4,39 @@ import shutil
 import sqlite3
 import pandas as pd
 import requests
+import streamlit as st
+from langchain_openai import ChatOpenAI
+from langchain_core.prompts import ChatPromptTemplate,MessagesPlaceholder
+from langchain.agents import create_openai_functions_agent, AgentExecutor
+from langchain_community.document_loaders import WebBaseLoader
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_openai import OpenAIEmbeddings
+from langchain_community.vectorstores.faiss import FAISS
+from langchain.chains import create_retrieval_chain
+from langchain_core.messages import HumanMessage, AIMessage
+from langchain.tools.retriever import create_retriever_tool
+from langchain_community.tools.tavily_search import TavilySearchResults
+
+st.title("Customer Support Bot")
+
+openai_api_key = st.sidebar.text_input('OpenAI API Key', type='password')
+tavily_api_key = st.sidebar.text_input('Tavily API Key', type='password')
+anthropic_api_key = st.sidebar.text_input('Anthropic API Key', type='password')
 
 
-def _set_env(var: str):
-    if not os.environ.get(var):
-        os.environ[var] = getpass.getpass(f"{var}: ")
+#def _set_env(var: str):
+#    if not os.environ.get(var):
+#        os.environ[var] = getpass.getpass(f"{var}: ")
 
 
-_set_env("ANTHROPIC_API_KEY")
-_set_env("TAVILY_API_KEY")
+#_set_env("ANTHROPIC_API_KEY")
+os.environ['ANTHROPIC_API_KEY'] = anthropic_api_key
+#_set_env("TAVILY_API_KEY")
+os.environ['TAVILY_API_KEY'] = tavily_api_key
 
 # Recommended
-_set_env("LANGCHAIN_API_KEY")
+#_set_env("LANGCHAIN_API_KEY")
+os.environ['LANGCHAIN_API_KEY'] = openai_api_key
 os.environ["LANGCHAIN_TRACING_V2"] = "true"
 os.environ["LANGCHAIN_PROJECT"] = "Customer Support Bot Tutorial"
 
