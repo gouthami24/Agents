@@ -12,3 +12,5 @@ langgraph
 langchain-anthropic
 tavily-python
 pandas
+numpy
+re
