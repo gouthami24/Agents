@@ -30,8 +30,9 @@ from typing_extensions import TypedDict
 from langgraph.graph.message import AnyMessage, add_messages
 from langchain_anthropic import ChatAnthropic
 from langchain_core.runnables import Runnable, RunnableConfig
-
-
+from langgraph.checkpoint.sqlite import SqliteSaver
+from langgraph.graph import END, StateGraph
+from langgraph.prebuilt import ToolNode, tools_condition
 
 st.title("Customer Support Bot")
 
@@ -438,3 +439,36 @@ part_1_tools = [
     cancel_excursion,
 ]
 part_1_assistant_runnable = primary_assistant_prompt | llm.bind_tools(part_1_tools)
+
+#### graph
+builder = StateGraph(State)
+
+
+# Define nodes: these do the work
+builder.add_node("assistant", Assistant(part_1_assistant_runnable))
+builder.add_node("tools", create_tool_node_with_fallback(part_1_tools))
+# Define edges: these determine how the control flow moves
+builder.set_entry_point("assistant")
+builder.add_conditional_edges(
+    "assistant",
+    tools_condition,
+)
+builder.add_edge("tools", "assistant")
+
+# The checkpointer lets the graph persist its state
+# this is a complete memory for the entire graph.
+memory = SqliteSaver.from_conn_string(":memory:")
+part_1_graph = builder.compile(checkpointer=memory)
+
+
+
+from IPython.display import Image, display
+
+try:
+    display(Image(part_1_graph.get_graph(xray=True).draw_mermaid_png()))
+except:
+    # This requires some extra dependencies and is optional
+    pass
+
+
+ 
